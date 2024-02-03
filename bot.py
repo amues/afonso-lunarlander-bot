@@ -49,7 +49,7 @@ class Bot:
         self.flag = "br"  # Optional attribute
         self.target_site = None
 
-        self.strategy = random.randint(1, 3)
+        self.strategy = random.randint(1, 4)
         # self.strategy = 3
         if self.strategy > 2:
             print("Strategy 3 selected")
@@ -117,7 +117,7 @@ class Bot:
             if self.target_site is not None:
                 command = None
                 diff = self.target_site - x
-                if np.abs(diff) < 50:
+                if np.abs(diff) < 60:
                     # Reduce horizontal speed
                     if abs(vx) <= 0.1:
                         command = rotate(current=head, target=0)
@@ -133,7 +133,7 @@ class Bot:
                     elif command == "right":
                         instructions.right = True
 
-                    if (abs(vx) < 0.5) and (vy < -4.567):
+                    if (abs(vx) < 0.5) and (vy < -3.5):
                         instructions.main = True
                 else:
                     # Stay at constant altitude while moving towards target
