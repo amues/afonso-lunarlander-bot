@@ -140,12 +140,12 @@ class Bot:
                     if vy < 0:
                         instructions.main = True
         else:
-            if y > 980:
+            if y > 960:
                 instructions.main = False
                 return instructions
             if vx > -70:
                 instructions.main = True
-            elif y < 950:
+            elif y < 940:
                 instructions.main = True
             command = rotate(current=head, target=65)
             if command == "left":
