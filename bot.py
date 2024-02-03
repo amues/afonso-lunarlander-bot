@@ -32,7 +32,7 @@ def find_landing_site(terrain: np.ndarray) -> Union[int, None]:
     end = start + run_lengths[imax]
 
     # Return location if large enough
-    if (end - start) > 36:
+    if (end - start) > 27:
         loc = int(start + (end - start) * 0.5)
         print("Found landing site at", loc)
         return loc
