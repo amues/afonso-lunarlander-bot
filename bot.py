@@ -133,7 +133,7 @@ class Bot:
                     elif command == "right":
                         instructions.right = True
 
-                    if (abs(vx) < 0.5) and (vy < -4.5):
+                    if (abs(vx) < 0.5) and (vy < -4.567):
                         instructions.main = True
                 else:
                     # Stay at constant altitude while moving towards target
