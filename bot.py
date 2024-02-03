@@ -90,6 +90,10 @@ class Bot:
         vx, vy = me.velocity
         head = me.heading
 
+        if y > 1500:
+            self.strategy = 1
+            self.initial_manoeuvre = True
+
         # Perform an initial rotation to get the LEM heading correct
         if self.initial_manoeuvre:
             if vx > 10:
