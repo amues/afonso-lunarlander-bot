@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
+import random
 from typing import Literal, Union
 
 import numpy as np
@@ -31,7 +32,7 @@ def find_landing_site(terrain: np.ndarray) -> Union[int, None]:
     end = start + run_lengths[imax]
 
     # Return location if large enough
-    if (end - start) > 40:
+    if (end - start) > 36:
         loc = int(start + (end - start) * 0.5)
         print("Found landing site at", loc)
         return loc
@@ -43,11 +44,18 @@ class Bot:
     """
 
     def __init__(self):
-        self.team = "Apollo 11"  # This is your team name
+        self.team = "Afonso 11"  # This is your team name
         self.avatar = 0  # Optional attribute
-        self.flag = "fr"  # Optional attribute
-        self.initial_manoeuvre = True
+        self.flag = "br"  # Optional attribute
         self.target_site = None
+
+        self.strategy = random.randint(1, 3)
+        # self.strategy = 3
+        if self.strategy > 2:
+            print("Strategy 3 selected")
+            self.initial_manoeuvre = False
+        else:
+            self.initial_manoeuvre = True
 
     def run(
         self,
@@ -82,12 +90,13 @@ class Bot:
         vx, vy = me.velocity
         head = me.heading
 
-        # Perform an initial rotation to get the LEM pointing upwards
+        # Perform an initial rotation to get the LEM heading correct
         if self.initial_manoeuvre:
             if vx > 10:
                 instructions.main = True
             else:
-                command = rotate(current=head, target=0)
+                target = 0
+                command = rotate(current=head, target=target)
                 if command == "left":
                     instructions.left = True
                 elif command == "right":
@@ -96,38 +105,56 @@ class Bot:
                     self.initial_manoeuvre = False
             return instructions
 
-        # Search for a suitable landing site
-        if self.target_site is None:
-            self.target_site = find_landing_site(terrain)
+        if self.strategy < 3:
+            # Search for a suitable landing site
+            if self.target_site is None:
+                self.target_site = find_landing_site(terrain)
 
-        # If no landing site had been found, just hover at 900 altitude.
-        if (self.target_site is None) and (y < 900) and (vy < 0):
-            instructions.main = True
+            # If no landing site had been found, just hover at 900 altitude.
+            if (self.target_site is None) and (y < 900) and (vy < 0):
+                instructions.main = True
 
-        if self.target_site is not None:
-            command = None
-            diff = self.target_site - x
-            if np.abs(diff) < 50:
-                # Reduce horizontal speed
-                if abs(vx) <= 0.1:
-                    command = rotate(current=head, target=0)
-                elif vx > 0.1:
-                    command = rotate(current=head, target=90)
-                    instructions.main = True
+            if self.target_site is not None:
+                command = None
+                diff = self.target_site - x
+                if np.abs(diff) < 50:
+                    # Reduce horizontal speed
+                    if abs(vx) <= 0.1:
+                        command = rotate(current=head, target=0)
+                    elif vx > 0.1:
+                        command = rotate(current=head, target=90)
+                        instructions.main = True
+                    else:
+                        command = rotate(current=head, target=-90)
+                        instructions.main = False
+
+                    if command == "left":
+                        instructions.left = True
+                    elif command == "right":
+                        instructions.right = True
+
+                    height = x - terrain[int(x)]
+                    if (abs(vx) < 0.5) and (vy < -3):
+                        if height < 100:
+                            instructions.main = True
+                        elif vy < -10:
+                            instructions.main = True
                 else:
-                    command = rotate(current=head, target=-90)
-                    instructions.main = False
-
-                if command == "left":
-                    instructions.left = True
-                elif command == "right":
-                    instructions.right = True
-
-                if (abs(vx) < 0.5) and (vy < -3):
-                    instructions.main = True
-            else:
-                # Stay at constant altitude while moving towards target
-                if vy < 0:
-                    instructions.main = True
+                    # Stay at constant altitude while moving towards target
+                    if vy < 0:
+                        instructions.main = True
+        else:
+            if y > 980:
+                instructions.main = False
+                return instructions
+            if vx > -70:
+                instructions.main = True
+            elif y < 950:
+                instructions.main = True
+            command = rotate(current=head, target=65)
+            if command == "left":
+                instructions.left = True
+            elif command == "right":
+                instructions.right = True
 
         return instructions
